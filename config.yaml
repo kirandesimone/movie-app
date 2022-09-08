@@ -1,0 +1,6 @@
+database:
+  uri: mongodb+srv://kirandesimone:Number1097@gocluster.yhepv.mongodb.net/?retryWrites=true&w=majority
+  name: sample_mflix
+application:
+  host: localhost
+  port: 8000
