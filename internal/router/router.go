@@ -6,8 +6,8 @@ import (
 	"github.com/kirandesimone/mflix/movie-app/internal/ports"
 )
 
-func HttpRouter(r *mux.Router, app ports.Api) {
-	handler := http.NewHandler(app)
+func HttpRouter(r *mux.Router, service ports.Api) {
+	handler := http.NewHandler(service)
 
 	r.HandleFunc("/api/v1/movies", handler.GetMovies)
 }

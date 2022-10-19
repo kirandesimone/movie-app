@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"log"
 
+	sugar "github.com/kirandesimone/mflix/movie-app/internal"
 	"github.com/kirandesimone/mflix/movie-app/internal/core/models"
 	"github.com/kirandesimone/mflix/movie-app/internal/ports"
 )
@@ -20,8 +20,9 @@ func (s *Service) GetMovies(ctx context.Context) []*models.Movie {
 	var movies []*models.Movie
 	err := s.db.FindAll(ctx, &movies)
 	if err != nil {
-		log.Fatal(err)
+		sugar.Logger.Fatalf("SERVICE - %s", err)
 	}
+	sugar.Logger.Info("SERVICE - called getMovies")
 
 	return movies
 

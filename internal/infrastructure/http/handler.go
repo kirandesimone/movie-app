@@ -9,16 +9,16 @@ import (
 )
 
 type Handler struct {
-	app ports.Api
+	service ports.Api
 }
 
-func NewHandler(app ports.Api) *Handler {
-	return &Handler{app: app}
+func NewHandler(service ports.Api) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) GetMovies(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	movies := h.app.GetMovies(ctx)
+	movies := h.service.GetMovies(ctx)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(movies)
 }
