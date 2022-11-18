@@ -2,11 +2,11 @@ package app
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/kirandesimone/mflix/movie-app/internal/infrastructure/db"
+	"github.com/kirandesimone/mflix/movie-app/internal/infrastructure/http"
 	"github.com/kirandesimone/mflix/movie-app/internal/router"
 	"github.com/kirandesimone/mflix/movie-app/internal/service"
 
@@ -21,10 +21,15 @@ func BuildAndRun(config *settings.Cfg) {
 	store := db.ConnectMongoDb(config.Database.Uri, config.Database.Name)
 	service := service.New(store)
 	defer store.Disconnect()
+	handler := http.NewHandler(service)
+	app := fiber.New()
 
-	r := mux.NewRouter()
-	r.Handle("/", nil)
-	router.HttpRouter(r, service)
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Application.Port), r))
+	router.HttpRouter(app, handler)
+
+	app.Listen(fmt.Sprintf(":%d", config.Application.Port))
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -14,7 +15,8 @@ import (
 )
 
 const (
-	collection = "movies"
+	collection    = "movies"
+	moviesPerPage = 20
 )
 
 var (
@@ -55,5 +57,33 @@ func (ms *MongoStore) FindAll(ctx context.Context, results interface{}) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer curr.Close(ctx)
+	return curr.All(ctx, results)
+}
+
+func (ms *MongoStore) TopRatedMovies(ctx context.Context, results interface{}) error {
+	sortStage := bson.D{{"$sort", bson.D{{"imdb.rating", -1}}}}
+	matchStage := bson.D{{"$match", bson.D{{"imdb.rating", bson.D{{"$ne", ""}}}}}}
+	limitStage := bson.D{{"$limit", moviesPerPage}}
+
+	coll := ms.db.Collection(collection)
+	curr, err := coll.Aggregate(ctx, mongo.Pipeline{sortStage, matchStage, limitStage})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer curr.Close(ctx)
+	return curr.All(ctx, results)
+}
+
+func (ms *MongoStore) GenreMovies(ctx context.Context, genre string, results interface{}) error {
+	matchStage := bson.D{{"$match", bson.D{{"genres", fmt.Sprintf("%s", genre)}}}}
+	limitStage := bson.D{{"$limit", moviesPerPage}}
+
+	coll := ms.db.Collection(collection)
+	curr, err := coll.Aggregate(ctx, mongo.Pipeline{matchStage, limitStage})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer curr.Close(ctx)
 	return curr.All(ctx, results)
 }

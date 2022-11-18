@@ -1,7 +1,12 @@
 package ports
 
-import "net/http"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 type Handler interface {
-	GetMovies(w http.ResponseWriter, r *http.Request)
+	GetMovies(c *fiber.Ctx) error
+	GetTopRatedMovies(c *fiber.Ctx) error
+	GetDramaMovies(c *fiber.Ctx) error
+	GetActionMovies(c *fiber.Ctx) error
 }
